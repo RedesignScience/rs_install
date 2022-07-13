@@ -1,4 +1,8 @@
-## TODO
+# RS_INSTALL
+
+A package to help install Redesign Science's toolkit
+ 
+## Mac
  - install brew
  - ensure wget is available
  - download repo files from public available github repo
@@ -6,7 +10,12 @@
  - run the downloaded installed scripts
  - store user credentials
 
-User credential files:
+## Linux
+
+## User credentials
+
+Request a user credential file from our R_S DevOps:
+
 - need R_S github access
 - need AWS access
 - need config files for HSDS

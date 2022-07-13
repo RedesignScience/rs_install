@@ -1,18 +1,41 @@
 #!/usr/bin/env python3
 
-# TODO:
-#  - install brew
-#  - ensure wget is available
-#  - download repo files from public available github repo
-#  - install on system
-#  - run the downloaded installed scripts
-#  - store user credentials
+import subprocess
+import shutil
+from pathlib import Path
+import os
 
-__doc__ = """
-User credential files:
-- need R_S github access
-- need AWS access
-- need config files for HSDS
-- need config files for db
-- need OpenEye license
-"""
+def run(cmds):
+    for cmd in cmds.splitlines():
+        if cmd:
+            print(">>>>", cmd)
+            subprocess.run(cmd, shell=True)
+
+def install_cmd(binary, install_cmd):
+    if shutil.which(binary):
+        print(f"Check: {binary} installed")
+    else:
+        print("Installing {binary}")
+        run(install_cmd)
+
+
+brew_url = "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+
+install_cmd("brew", f"curl -fsSL {brew_url}")
+
+install_cmd("wget", f"brew install wget")
+
+install_cmd("conda", f"brew install conda")
+
+install_cmd("mamba", f"conda install -y mamba")
+
+if Path("rs_install-main").exists():
+    run("rm -rf rs_install-main")
+rs_install_url = "https://github.com/RedesignScience/rs_install/archive/refs/heads/main.zip"
+run(f"""
+    rm main.zip*
+    wget {rs_install_url}
+    unzip main
+""")
+
+os.chdir("mamba env create -y -n rs -f rs_install-main/env.yaml")
