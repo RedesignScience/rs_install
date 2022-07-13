@@ -11,6 +11,7 @@ def run(cmds):
             print(">>>>", cmd)
             subprocess.run(cmd, shell=True)
 
+
 def install_cmd(binary, install_cmd):
     if shutil.which(binary):
         print(f"Check: {binary} installed")
@@ -25,17 +26,20 @@ install_cmd("brew", f"curl -fsSL {brew_url}")
 
 install_cmd("wget", f"brew install wget")
 
+install_cmd("git", f"brew install git")
+
 install_cmd("conda", f"brew install conda")
 
 install_cmd("mamba", f"conda install -y mamba")
 
-if Path("rs_install-main").exists():
-    run("rm -rf rs_install-main")
+if Path("rs_install").exists():
+    run("rm -rf rs_install")
 rs_install_url = "https://github.com/RedesignScience/rs_install/archive/refs/heads/main.zip"
 run(f"""
     rm main.zip*
     wget {rs_install_url}
     unzip main
+    mv rs_install-main rs_install
 """)
 
-os.chdir("mamba env create -y -n rs -f rs_install-main/env.yaml")
+run("mamba create -n rs -f rs_install-main/rs_mac_conda_env.yaml.yaml")

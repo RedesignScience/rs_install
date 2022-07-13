@@ -4,7 +4,7 @@ channels:
   - openeye
   - omnia
 dependencies:
-  - cudatoolkit=10.0.130
+  - cudatoolkit
   - python=3.8
   - openeye-toolkits
   - mdtraj
