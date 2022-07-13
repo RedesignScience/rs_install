@@ -16,55 +16,55 @@ def run(cmds):
 
 def install_cmd(binary, install_cmd):
     if shutil.which(binary):
-        print(f"Check: {binary} installed")
+        print(f"Check binary: {binary} installed")
     else:
         print("Installing {binary}")
         run(install_cmd)
 
 
-brew_url = "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+install_cmd(
+    "brew",
+    f'/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+)
 
-install_cmd("brew", f"curl -fsSL {brew_url}")
-
-install_cmd("wget", f"brew install wget")
+install_cmd("git", f"brew install git")
 
 install_cmd("gh", f"brew install gh")
 
 run("gh auth login")
 
-install_cmd("conda", f"brew install conda")
-
-install_cmd("mamba", f"conda install -y mamba")
-
-if Path("rs_install-main").exists():
-    run("rm -rf rs_install-main")
-
-for f in Path(".").glob("main.zip*"):
-    run(f"rm {f}")
-
-run(f"""
-    wget https://github.com/RedesignScience/rs_install/archive/refs/heads/main.zip
-    unzip main
-    rm main.zip
-""")
-
-if run("mamba env list | grep rs").returncode != 0:
-    run("mamba create -n rs")
-
-run("mamba activate rs")
-
-run("mamba env update -f rs_install-main/rs_mac_conda_env.yaml")
-
 Path('rs').mkdir(exist_ok=True)
 os.chdir("rs")
 
-for package in ["rseed", "rsjob", "foam", "foamdb", "AlphaSpace2"]:
+for package in ["rs_install", "rseed", "rsjob", "foam", "foamdb", "AlphaSpace2"]:
+    print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    print(f">> R_S Package: {package}")
+
     if not Path(package).exists():
         run(f"gh repo clone RedesignScience/{package}")
+
     os.chdir(package)
+
     run(f"git pull")
-    run(f"python setup.py develop")
+    if Path("setup.py").exists():
+        run(f"python setup.py develop")
+
+    if package == "foam":
+        run("pip install sqlalchemy alembic psycopg2-binary")
+
     os.chdir('..')
+
+install_cmd("conda", f"brew install conda")
+
+if run("conda env list | grep rs").returncode != 0:
+    run("conda create -n rs")
+
+run("conda activate rs")
+
+install_cmd("mamba", f"conda install -y mamba")
+
+run("mamba env update -f rs_install/rs_mac_conda_env.yaml")
+
 
 
 
