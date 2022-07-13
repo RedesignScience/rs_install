@@ -4,6 +4,8 @@ import subprocess
 import shutil
 from pathlib import Path
 import os
+import sys
+
 
 def run(cmds):
     result = None
@@ -14,6 +16,12 @@ def run(cmds):
     return result
 
 
+def get_output_of_run(cmd):
+    bytes = subprocess.check_output(cmd.split())
+    text = bytes.decode("utf-8", errors="ignore")
+    return text
+
+
 def install_cmd(binary, install_cmd):
     if shutil.which(binary):
         print(f"Check binary: {binary} installed")
@@ -22,21 +30,67 @@ def install_cmd(binary, install_cmd):
         run(install_cmd)
 
 
+Path('rs').mkdir(exist_ok=True)
+os.chdir("rs")
+
 install_cmd(
     "brew",
     f'/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
 )
 
-install_cmd("git", f"brew install git")
+install_cmd("wget", f"brew install wget")
+
+if not shutil.which("conda"):
+    # Must use x86 and rely on Rosetta
+    fname = "Miniconda3-latest-MacOSX-x86_64.sh"
+    if not Path(fname).exists():
+        run("wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O Miniconda3-latest-MacOSX-x86_64.sh")
+        run("bash ./Miniconda3-latest-MacOSX-x86_64.sh -u")
+
+    print("")
+    print("Hopefully you've installed conda.")
+    print("Now you need to restart the terminal to trigger conda.")
+    print("")
+    print("Restart the terminal and then come back to this directory.")
+    print("Then restart the script and it will continue the installation.")
+    sys.exit(1)
+
+if run("conda env list | grep rs").returncode != 0:
+    run("conda create -n rs -y python=3.8")
 
 install_cmd("gh", f"brew install gh")
 
 run("gh auth login")
 
-Path('rs').mkdir(exist_ok=True)
-os.chdir("rs")
+install_cmd("git", f"brew install git")
 
-for package in ["rs_install", "rseed", "rsjob", "foam", "foamdb", "AlphaSpace2"]:
+package = "rs_install"
+print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+print(f">> R_S Package: {package}")
+if not Path(package).exists():
+    run(f"gh repo clone RedesignScience/{package}")
+os.chdir(package)
+run("git pull")
+os.chdir('..')
+
+install_cmd("mamba", "conda install -y mamba")
+
+run("mamba env update -n rs -f rs_install/rs_mac_conda_env.yaml")
+
+text = get_output_of_run("conda env list")
+pip = "pip"
+for line in text.splitlines():
+    print(line)
+    tokens = line.split()
+    if "rs" in tokens:
+        pip = f"{tokens[-1]}/bin/pip"
+        print(f"Found rs pip {pip}")
+        break
+else:
+    print("Error: can't find rs conda environment")
+    sys.exit(1)
+
+for package in ["rsjob", "rseed", "foam", "foamdb", "AlphaSpace2"]:
     print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     print(f">> R_S Package: {package}")
 
@@ -46,25 +100,21 @@ for package in ["rs_install", "rseed", "rsjob", "foam", "foamdb", "AlphaSpace2"]
     os.chdir(package)
 
     run(f"git pull")
-    if Path("setup.py").exists():
-        run(f"python setup.py develop")
 
-    if package == "foam":
-        run("pip install sqlalchemy alembic psycopg2-binary")
+    if package == "foamdb":
+        run(f"{pip} install sqlalchemy alembic psycopg2-binary")
+        run(f"{pip} install .")
+    else:
+        run(f"{pip} install -e .")
 
     os.chdir('..')
 
-install_cmd("conda", f"brew install conda")
 
-if run("conda env list | grep rs").returncode != 0:
-    run("conda create -n rs")
-
-run("conda activate rs")
-
-install_cmd("mamba", f"conda install -y mamba")
-
-run("mamba env update -f rs_install/rs_mac_conda_env.yaml")
-
+print("")
+print("> conda activat"
+      "e rs")
+print()
+print("> rseed")
 
 
 
