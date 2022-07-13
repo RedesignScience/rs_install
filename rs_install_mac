@@ -6,10 +6,12 @@ from pathlib import Path
 import os
 
 def run(cmds):
+    result = None
     for cmd in cmds.splitlines():
         if cmd:
-            print(">>>>", cmd)
-            subprocess.run(cmd, shell=True)
+            print(">>>>", cmd.lstrip())
+            result = subprocess.run(cmd, shell=True)
+    return result
 
 
 def install_cmd(binary, install_cmd):
@@ -26,20 +28,43 @@ install_cmd("brew", f"curl -fsSL {brew_url}")
 
 install_cmd("wget", f"brew install wget")
 
-install_cmd("git", f"brew install git")
+install_cmd("gh", f"brew install gh")
+
+run("gh auth login")
 
 install_cmd("conda", f"brew install conda")
 
 install_cmd("mamba", f"conda install -y mamba")
 
-if Path("rs_install").exists():
-    run("rm -rf rs_install")
-rs_install_url = "https://github.com/RedesignScience/rs_install/archive/refs/heads/main.zip"
+if Path("rs_install-main").exists():
+    run("rm -rf rs_install-main")
+
+for f in Path(".").glob("main.zip*"):
+    run(f"rm {f}")
+
 run(f"""
-    rm main.zip*
-    wget {rs_install_url}
+    wget https://github.com/RedesignScience/rs_install/archive/refs/heads/main.zip
     unzip main
-    mv rs_install-main rs_install
+    rm main.zip
 """)
 
-run("mamba create -n rs -f rs_install-main/rs_mac_conda_env.yaml.yaml")
+if run("mamba env list | grep rs").returncode != 0:
+    run("mamba create -n rs")
+
+run("mamba activate rs")
+
+run("mamba env update -f rs_install-main/rs_mac_conda_env.yaml")
+
+Path('rs').mkdir(exist_ok=True)
+os.chdir("rs")
+
+for package in ["rseed", "rsjob", "foam", "foamdb", "AlphaSpace2"]:
+    if not Path(package).exists():
+        run(f"gh repo clone RedesignScience/{package}")
+    os.chdir(package)
+    run(f"git pull")
+    run(f"python setup.py develop")
+    os.chdir('..')
+
+
+
