@@ -71,7 +71,6 @@ install_cmd(
 )
 install_cmd("wget", f"brew install wget")
 
-xw
 
 if not shutil.which("conda"):
     print_header(f"Install Conda - must be the x86 and not ARM version")
