@@ -31,11 +31,11 @@ def install_cmd(binary, install_cmd):
         run(install_cmd)
 
 
-def header_print(s):
+def print_header(s):
     print()
     print(">" * 70)
     for line in s.splitlines():
-        print(f"> {line}")
+        print(f">   {line}")
     print(">" * 70)
 
 
@@ -50,24 +50,31 @@ if len(sys.argv) > 2:
 else:
     package_dir = Path(env)
 
-package_dir.mkdir(exist_ok=True)
 
-header_print(f"""\
-Setting up `{env}` conda environment in {package_dir.resolve()}
-(optional: python3 rs_install_mac.py <env_name> <package_dir>)""")
+print_header(f"""rs_install """)
 
-os.chdir(package_dir)
+print(f"""
+Installing and updating the R_S Toolkit on your Mac.
 
-header_print(f"Checking unix utilities")
+Packages are installed in {package_dir.resolve()}
+Python conda environment `{env}` 
+
+(optional: python3 rs_install_mac.py <env_name> <package_dir>)
+""")
+
+
+
+print_header(f"Checking unix utilities")
 install_cmd(
     "brew",
     f'/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
 )
 install_cmd("wget", f"brew install wget")
 
+xw
 
 if not shutil.which("conda"):
-    header_print(f"Install Conda")
+    print_header(f"Install Conda - must be the x86 and not ARM version")
 
     # Must use x86 and rely on Rosetta
     fname = "Miniconda3-latest-MacOSX-x86_64.sh"
@@ -84,7 +91,7 @@ if not shutil.which("conda"):
     sys.exit(1)
 
 
-header_print(f"Checking `{env}` conda environment")
+print_header(f"Checking `{env}` conda environment")
 if run(f"conda env list | grep {env}").returncode != 0:
     run(f"conda create -n {env} -y python=3.8")
 
@@ -100,15 +107,22 @@ else:
     sys.exit(1)
 
 
-header_print("Connect to R_S github website")
+print_header("Connect to R_S github website")
 
 install_cmd("gh", f"brew install gh")
 run("gh auth login")
 install_cmd("git", f"brew install git")
 
 
+
+print_header(f"Checking R_S packages in {package_dir.resolve()}")
+
+package_dir.mkdir(exist_ok=True)
+os.chdir(package_dir)
+
+
 package = "rs_install"
-header_print(f"R_S Package: {package}")
+print_header(f"R_S package: {package}")
 
 if not Path(package).exists():
     run(f"gh repo clone RedesignScience/{package}")
@@ -118,7 +132,7 @@ run("git pull")
 os.chdir('..')
 
 
-header_print("Conda install for special packages")
+print_header("Conda install for special packages")
 
 install_cmd("mamba", "conda install -y mamba")
 
@@ -133,7 +147,7 @@ for line in open("rs_install/packages.yaml"):
     tokens = line.split()
     if len(tokens) and tokens[0] == "-":
         package = tokens[1]
-        header_print(f"R_S Package: {package}")
+        print_header(f"R_S package: {package}")
 
         if not Path(package).exists():
             run(f"gh repo clone RedesignScience/{package}")
@@ -148,11 +162,11 @@ for line in open("rs_install/packages.yaml"):
         os.chdir('..')
 
 
-header_print(f"Installation Complete")
+print_header(f"Installation Complete")
 
 print(f"""
 
-Hopefully the R_S packages have been installed in the directory
+The R_S packages should be in the directory
     
     {Path(".").resolve()}
 
@@ -163,11 +177,11 @@ To access the packages in the `{env}` conda environment.
 Check if `rseed` is available (you might have to wait for the Rosetta
 conversion x86 -> ARM to kick in):
 
-    > rseed
+    ({env})> rseed
     
 Then open up a trajectory from foamdb:
 
-    > rshow traj-foam 23    
+   ({env}) > rshow traj-foam 23    
 
 """)
 
