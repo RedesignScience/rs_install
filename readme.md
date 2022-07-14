@@ -15,7 +15,7 @@ Go to the directory in which you want to store the packages.
 
 Try this first:
   
-    python -c "$(curl -fsSL https://raw.githubusercontent.com/RedesignScience/rs_install/main/rs_install_mac.py)"
+    python3 -c "$(curl -fsSL https://raw.githubusercontent.com/RedesignScience/rs_install/main/rs_install_mac.py)"
     
     
 Otherwise, save <a download href="https://raw.githubusercontent.com/RedesignScience/rs_install/main/rs_install_mac.py">rs_install_mac.py</a>. then run:
