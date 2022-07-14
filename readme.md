@@ -12,8 +12,13 @@ Pre-requisites:
   - make sure you have access to the R_S github repo
 
 Go to the directory in which you want to store the packages.  
-Save <a download href="https://raw.githubusercontent.com/RedesignScience/rs_install/main/rs_install_mac.py">rs_install_mac.py</a>.  
-Then run:
+
+Try this first:
+  
+    python -c "$(curl -fsSL https://raw.githubusercontent.com/RedesignScience/rs_install/main/rs_install_mac.py)"
+    
+    
+Otherwise, save <a download href="https://raw.githubusercontent.com/RedesignScience/rs_install/main/rs_install_mac.py">rs_install_mac.py</a>. then run:
 
     python3 rs_install_mac.py
 
