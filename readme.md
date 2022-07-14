@@ -15,7 +15,7 @@ Go to the directory in which you want to store the packages.
 Save <a download href="https://raw.githubusercontent.com/RedesignScience/rs_install/main/rs_install_mac.py">rs_install_mac.py</a>.  
 Then run:
 
-    ./rs_install_mac.py
+    python3 rs_install_mac.py
 
 If you need to install Conda, once the script has installed Conda, it will stop
 to let you start Conda by reopening the terminal.
