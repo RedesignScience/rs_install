@@ -8,12 +8,11 @@ A package to help install Redesign Science's toolkit
 ## Mac
 
 Pre-requisites:
-    - make sure you have access to the R_S github repo
 
-Go to the directory in which you want to store the `rs` directory.
+  - make sure you have access to the R_S github repo
 
-Download <https://raw.githubusercontent.com/RedesignScience/rs_install/main/rs_install_mac.py>.
-
+Go to the directory in which you want to store the packages.
+Download <a href="https://raw.githubusercontent.com/RedesignScience/rs_install/main/rs_install_mac.py" download>rs_install_mac.py</a>.
 Then run:
 
     ./rs_install_mac.py
