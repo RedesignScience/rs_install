@@ -31,6 +31,8 @@ Go back to the script, and run it to continue from where you left off.
 ## Todo
 - User credentials
   - need AWS access
+  - kubectl
+  - argo
   - need config files for HSDS
   - need config files for db
   - need OpenEye license
