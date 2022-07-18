@@ -74,10 +74,10 @@ def check_aws_configure():
 
 def check_config_file(fname, basename, url):
     if Path(fname).exists():
-        print(f"Check config file `{fname}`: exists")
+        print(f"Check `{fname}`: exists")
     else:
-        print(f"Missing config file: `{Path(fname).name}`")
-        print(f"Please download the file: `{basename}`")
+        print(f"Missing config: `{Path(fname).name}`")
+        print(f"Please download: `{basename}`")
         print(f"From: {url}")
         print(f"And copy to: `{fname}`")
 
@@ -211,7 +211,7 @@ else:
 # Check kubernetes to allow argo list
 print_header("Checking OpenEye license: for ligand analysis in rseed")
 check_config_file(
-    "rs/rseed/license/oe_license.txt",
+    top_dir / "rseed/license/oe_license.txt",
     "oe_license.txt",
     "https://www.notion.so/redesignscience/RSeed-f0df0212bba6469db3d5e774c99c87d0#307c435748364d19ba84e03d7123b667"
 )
