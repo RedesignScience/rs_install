@@ -72,21 +72,20 @@ def check_aws_configure():
     return True
 
 
-def check_home_config_file(rel_home_fname, basename, url):
-    fname = get_home() / rel_home_fname
-    if fname.exists():
-        print(f"Check `{rel_home_fname}`: exists")
+def check_config_file(fname, basename, url):
+    if Path(fname).exists():
+        print(f"Check config file `{fname}`: exists")
     else:
-        print(f"Missing config: `{rel_home_fname}`")
+        print(f"Missing config file: `{Path(fname).name}`")
         print(f"Please download the file: `{basename}`")
         print(f"From: {url}")
         print(f"And copy to: `{fname}`")
-        print(f"")
 
 
 args = sys.argv[1:]
 env = 'rs' if not len(args) else args[0]
 top_dir = Path(env) if len(args) <= 1 else Path(args[1])
+python_version = "3.8"
 
 
 # Greeting message
@@ -134,7 +133,7 @@ if not shutil.which("conda"):
 # Check if our Conda environment has been created
 print_header(f"Checking `{env}` conda environment")
 if run(f"conda env list | grep {env}").returncode != 0:
-    run(f"conda create -n {env} -y python=3.8")
+    run(f"conda create -n {env} -y python={python_version}")
 for line in get_lines_of_run("conda env list"):
     if env in (tokens := line.split()):
         env_path = tokens[-1]
@@ -195,6 +194,7 @@ for line in open("rs_install/packages.yaml"):
 
 # Checking config file for tools that access our distributed platforms
 
+
 # Check AWS is configured
 print_header(f"Check AWS config: for launching remote jobs")
 if check_aws_configure():
@@ -209,22 +209,31 @@ else:
 
 
 # Check kubernetes to allow argo list
+print_header("Checking OpenEye license: for ligand analysis in rseed")
+check_config_file(
+    "rs/rseed/license/oe_license.txt",
+    "oe_license.txt",
+    "https://www.notion.so/redesignscience/RSeed-f0df0212bba6469db3d5e774c99c87d0#307c435748364d19ba84e03d7123b667"
+)
+
+
+# Check kubernetes to allow argo list
 print_header("Checking Kubernetes config: for monitoring remote jobs")
-check_home_config_file(
-    ".kube/config",
+check_config_file(
+    get_home() / ".kube/config",
     "cw-kubeconfig.txt",
     "https://www.notion.so/redesignscience/Using-RSCloud-with-Orion-dd12c4c6e1d3473ab44678e0a05461b8#af8e52a7fcd14b298a1d7b081fae72b1"
 )
 
 # Check FoamDB to allow upload/downloand/viewing of trajectories
 print_header("Checking FoamDB config: for upload/download to traj database")
-check_home_config_file(
-    ".config/foamdb/config.json",
+check_config_file(
+    get_home() / ".config/foamdb/config.json",
     "config.json",
     "https://www.notion.so/redesignscience/Credentials-55cd7fdaae764d699b1766ceafdd4dc9#74256ba09c404df899117022b225359d"
 )
-check_home_config_file(
-    ".hscfg",
+check_config_file(
+    get_home() / ".hscfg",
     ".hscfg",
     "https://www.notion.so/redesignscience/Credentials-55cd7fdaae764d699b1766ceafdd4dc9#257f20440928466a862d225bb45405c6"
 )
