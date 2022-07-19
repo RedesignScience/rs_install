@@ -162,7 +162,7 @@ os.chdir(top_dir)
 
 # Create install.sh
 sh = "install.sh"
-open(sh, "w").write(f"./rs_install/{Path(__file__).name} {env} {top_dir.resolve()}")
+open(sh, "w").write(f"./rs_install/rs_install_mac.py {env} {top_dir.resolve()}")
 st = os.stat(sh)
 os.chmod(sh, st.st_mode | stat.S_IEXEC)
 print(f"Created {sh}")
