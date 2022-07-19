@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 import os
 import sys
+import stat
 
 
 def run(cmds):
@@ -147,13 +148,24 @@ else:
 # Connect to github.com/RedesignScience
 print_header("Connect to R_S github website")
 install_cmd("gh", f"brew install gh")
-run("gh auth login")
+if run("gh repo list > /dev/null").returncode != 0:
+    run("gh auth login")
+else:
+    print("You are logged-in to gh")
 
 
 # Checking for R_S package directory
 print_header(f"Checking R_S packages in {top_dir.resolve()}")
 top_dir.mkdir(exist_ok=True)
 os.chdir(top_dir)
+
+
+# Create install.sh
+sh = "install.sh"
+open(sh, "w").write(f"./rs_install/{Path(__file__).name} {env} {top_dir.resolve()}")
+st = os.stat(sh)
+os.chmod(sh, st.st_mode | stat.S_IEXEC)
+print(f"Created {sh}")
 
 
 # Download rs_install as it has package lists and env.yamls
@@ -166,7 +178,7 @@ run("gh repo sync")
 os.chdir('..')
 
 
-# Check for special Conda downloads 
+# Check for special Conda downloads
 print_header("Conda install for precompiled binaries")
 install_cmd("mamba", "conda install -y mamba")
 run(f"mamba env update -n {env} -f rs_install/mac_env.yaml")
