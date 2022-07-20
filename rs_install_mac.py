@@ -48,9 +48,18 @@ def get_home():
 def dirty_read_toml(fname):
     result = {}
     for line in open(fname):
-        if "=" in (tokens := line.split()):
+        tokens = line.split()
+        if "=" in tokens:
             result[tokens[0]] = tokens[2]
     return result
+
+
+def get_conda_env_path(env):
+    for line in get_lines_of_run("conda env list"):
+        tokens = line.split()
+        if env in tokens:
+            return tokens[-1]
+    return None
 
 
 def check_aws_configure():
@@ -133,13 +142,11 @@ if not shutil.which("conda"):
 
 # Check if our Conda environment has been created
 print_header(f"Checking `{env}` conda environment")
-if run(f"conda env list | grep {env}").returncode != 0:
+if not get_conda_env_path(env):
     run(f"conda create -n {env} -y python={python_version}")
-for line in get_lines_of_run("conda env list"):
-    if env in (tokens := line.split()):
-        env_path = tokens[-1]
-        print(f"Location of `{env}` environment: {env_path}")
-        break
+env_path = get_conda_env_path(env)
+if env_path:
+    print(f"Location of `{env}` environment: {env_path}")
 else:
     print(f"Error: can't find `{env}` conda environment")
     sys.exit(1)
