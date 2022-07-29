@@ -201,8 +201,10 @@ for line in open("rs_install/packages.yaml"):
     print_header(f"R_S package: {package}")
     if not Path(package).exists():
         run(f"gh repo clone RedesignScience/{package}")
-    os.chdir(package)
-    run(f"gh repo sync")
+        os.chdir(package)
+    else:
+        os.chdir(package)
+        run(f"gh repo sync")
     if package == "foamdb":
         run(f"{pip} install sqlalchemy alembic psycopg2-binary")
         run(f"{pip} install .")
